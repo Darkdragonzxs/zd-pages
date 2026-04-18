@@ -298,15 +298,28 @@ function trackImages(){
   });
 }
 
-function launchWebsite(url) {
-  const html = `<!DOCTYPE html>
-<html>
-<body style="margin:0">
-<iframe src="${url}" style="border:none;width:100vw;height:100vh;"></iframe>
-</body>
-</html>`;
+async function launchWebsite(target) {
+  if(!/^(https?:\/\/|data:)/i.test(target)){
+    target = "https://search.brave.com/search?q=" + encodeURIComponent(target);
+  }
+
+  let html = await fetch("https://cdn.jsdelivr.net/gh/darkdragonzxs/sandstone@latest/index.html")
+    .then(r => r.text());
+
+  html = html.replace(/<\/script>/gi, '</scr' + 'ipt>');
+
+  html = html.replace(
+    "</body>",
+    `<scr`+`ipt>
+history.replaceState({}, "", "?url=${target}");
+location.search = "?url=${target}";
+</scr`+`ipt></body>`
+  );
+
   const blob = new Blob([html], { type: "text/html" });
-  location.href = URL.createObjectURL(blob);
+  const blobUrl = URL.createObjectURL(blob);
+
+  location.href = blobUrl + "?url=" + target;
 }
 
 async function loadApp(path) {
