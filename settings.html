@@ -2,7 +2,6 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>settings</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
@@ -87,7 +86,6 @@ button:hover{
   margin-top:14px;
 }
 
-/* modern switch */
 .switch{
   position:relative;
   width:46px;
@@ -125,7 +123,7 @@ button:hover{
 }
 
 input:checked + .slider{
-  background:#4ade80;
+  background:#363737;
 }
 
 input:checked + .slider:before{
@@ -142,23 +140,22 @@ input:checked + .slider:before{
 
 <div class="section">
 <div class="label">Title</div>
-<input id="title" placeholder="Enter title">
+<input id="title" placeholder="Google">
 <button onclick="saveTitle()">Apply</button>
 </div>
 
 <div class="section">
 <div class="label">Favicon</div>
-<input id="favicon" placeholder="URL or domain (example.com)">
+<input id="favicon" placeholder="https://google.com/favicon.ico">
 <button onclick="saveFavicon()">Apply</button>
 </div>
 
 <div class="section">
-<div class="label">Privacy</div>
 
 <button onclick="openBlank()">Open in about:blank</button>
 
 <div class="toggle-row">
-<span>Enable leave warning</span>
+<span>Leave Site query</span>
 
 <label class="switch">
   <input type="checkbox" id="leaveToggle">
