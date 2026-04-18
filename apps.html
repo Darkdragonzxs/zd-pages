@@ -7,8 +7,6 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
   <style>
     :root {
       --bg: #0f0f0f;
@@ -99,14 +97,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-
       font-size: 13px;
       font-weight: 500;
       text-align: center;
-
       opacity: 0;
       transition: opacity 0.2s ease;
-
       background: rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(6px);
     }
@@ -118,25 +113,6 @@
 
     .card:hover .title {
       opacity: 1;
-    }
-
-    #backBtn {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      z-index: 9999;
-      width: 42px;
-      height: 42px;
-      border-radius: 999px;
-      background: rgba(0,0,0,0.6);
-      border: none;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    #backBtn:hover {
-      background: rgba(0,0,0,0.8);
     }
   </style>
 </head>
@@ -184,7 +160,7 @@
           return await res.json();
         } catch {}
       }
-      throw new Error("Failed to load apps list");
+      throw new Error();
     }
 
     async function fetchApp(path) {
@@ -195,7 +171,7 @@
           return await res.text();
         } catch {}
       }
-      throw new Error("Failed to load app");
+      throw new Error();
     }
 
     function buildImage(path) {
@@ -220,11 +196,11 @@
 
     function render(data, q = "") {
       const filtered = data.filter(a =>
-        (a.title + a.file_name).toLowerCase().includes(q.toLowerCase())
+        (a.title + (a.file_name || "")).toLowerCase().includes(q.toLowerCase())
       );
 
       elCards.innerHTML = filtered.map(a => `
-        <div class="card" data-path="${a.file_name}">
+        <div class="card" data-path="${a.file_name || ""}" data-website="${a.website || ""}">
           ${buildImage(a.thumb)}
           <div class="title">${a.title}</div>
         </div>
@@ -233,28 +209,67 @@
       elCount.textContent = filtered.length;
 
       document.querySelectorAll(".card").forEach(el => {
-        el.onclick = () => loadApp(el.dataset.path);
+        el.onclick = () => {
+          const website = el.dataset.website;
+          const path = el.dataset.path;
+
+          if (website) {
+            launchWebsite(website);
+          } else if (path) {
+            loadApp(path);
+          }
+        };
       });
     }
+
+function launchWebsite(url) {
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>zodiac</title>
+<link rel="icon" href="https://www.google.com/favicon.ico">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/darkdragonzxs/sandstone@latest/main.css">
+<style>
+:root { --custom-bg-color:#222; --custom-text-color:#ddd; }
+html { background: var(--custom-bg-color); }
+* { color: var(--custom-text-color); }
+body.fullscreen-mode #address_bar, body.fullscreen-mode #options_div { display:none!important; }
+body.fullscreen-mode #frame_container { height:100vh; }
+</style>
+</head>
+<body>
+<div id="address_bar">
+<div id="favicon_container"><img id="favicon_img"></div>
+<input id="url_box" value="${url}">
+<button id="navigate_button"><i class="fa-solid fa-paper-plane"></i></button>
+<button id="options_button"><i class="fa-solid fa-gear"></i></button>
+</div>
+<div id="frame_container"></div>
+<div id="options_div" style="display:none;"></div>
+
+</scr` + `ipt>
+window.location.search = "?url=${encodeURIComponent(url)}";
+</scr` + `ipt>
+
+</scr` + `ipt src="https://cdn.jsdelivr.net/gh/darkdragonzxs/sandstone@latest/main.js"></scr` + `ipt>
+
+<span id="version_text" style="display:none;"></span>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: "text/html" });
+  const blobUrl = URL.createObjectURL(blob);
+  location.href = blobUrl + "?url=" + encodeURIComponent(url);
+}
 
     async function loadApp(path) {
       try {
         const html = await fetchApp(path);
-
-        window.__BACK = document.documentElement.outerHTML;
-
-        const backUI = `
-          <button id="backBtn" onclick="document.open();document.write(window.__BACK);document.close();">
-            <i class="fa-solid fa-arrow-left"></i>
-          </button>
-        `;
-
         document.open();
-        document.write(backUI + html);
+        document.write(html);
         document.close();
-
-      } catch (e) {
-        console.error(e);
+      } catch {
         showError("Failed to load app.");
       }
     }
@@ -265,8 +280,7 @@
       try {
         apps = await fetchJSON();
         render(apps);
-      } catch (e) {
-        console.error(e);
+      } catch {
         showError("Failed to load apps list.");
       }
     })();
