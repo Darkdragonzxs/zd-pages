@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>zodiac</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --panel: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #e5e5e5;
+      --muted: #9a9a9a;
+      --hover: #242424;
+      --error: #ff4d4d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    #search {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    .status {
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .error {
+      color: var(--error);
+      margin-bottom: 10px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+
+    .title {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+
+      opacity: 0;
+      transition: opacity 0.2s ease;
+
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+    }
+
+    .card:hover .thumb {
+      filter: blur(6px) brightness(0.7);
+      transform: scale(1.05);
+    }
+
+    .card:hover .title {
+      opacity: 1;
+    }
+
+    #backBtn {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 9999;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #backBtn:hover {
+      background: rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <h1>apps</h1>
+
+    <div class="toolbar">
+      <input id="search" placeholder="Search..." />
+      <div class="status"><span id="count">0</span></div>
+    </div>
+
+    <div id="error" class="error" hidden></div>
+    <section id="cards" class="cards"></section>
+  </main>
+
+  <script>
+    const BASES = [
+      "https://cdn.jsdelivr.net/gh/darkdragonzxs/apps@latest/",
+      "https://raw.githubusercontent.com/darkdragonzxs/apps/main/",
+      "https://raw.githack.com/darkdragonzxs/apps/main/"
+    ];
+
+    const JSON_PATH = "apps.json";
+    const PREFIX = "/";
+
+    let apps = [];
+
+    const elCards = document.getElementById("cards");
+    const elSearch = document.getElementById("search");
+    const elCount = document.getElementById("count");
+    const elError = document.getElementById("error");
+
+    function showError(msg) {
+      elError.hidden = false;
+      elError.textContent = msg;
+    }
+
+    async function fetchJSON() {
+      for (const base of BASES) {
+        try {
+          const res = await fetch(base + JSON_PATH);
+          if (!res.ok) continue;
+          return await res.json();
+        } catch {}
+      }
+      throw new Error("Failed to load apps list");
+    }
+
+    async function fetchApp(path) {
+      for (const base of BASES) {
+        try {
+          const res = await fetch(base + PREFIX + path);
+          if (!res.ok) continue;
+          return await res.text();
+        } catch {}
+      }
+      throw new Error("Failed to load app");
+    }
+
+    function buildImage(path) {
+      if (!path) return "";
+      const clean = path.replace(/^\/+/, '');
+
+      return `
+        <img class="thumb"
+          src="${BASES[0] + PREFIX + clean}"
+          onerror="
+            if (!this.dataset.fallback) {
+              this.dataset.fallback = 1;
+              this.src='${BASES[1] + PREFIX + clean}';
+            } else if (this.dataset.fallback == 1) {
+              this.dataset.fallback = 2;
+              this.src='${BASES[2] + PREFIX + clean}';
+            }
+          "
+        >
+      `;
+    }
+
+    function render(data, q = "") {
+      const filtered = data.filter(a =>
+        (a.title + a.file_name).toLowerCase().includes(q.toLowerCase())
+      );
+
+      elCards.innerHTML = filtered.map(a => `
+        <div class="card" data-path="${a.file_name}">
+          ${buildImage(a.thumb)}
+          <div class="title">${a.title}</div>
+        </div>
+      `).join("");
+
+      elCount.textContent = filtered.length;
+
+      document.querySelectorAll(".card").forEach(el => {
+        el.onclick = () => loadApp(el.dataset.path);
+      });
+    }
+
+    async function loadApp(path) {
+      try {
+        const html = await fetchApp(path);
+
+        window.__BACK = document.documentElement.outerHTML;
+
+        const backUI = `
+          <button id="backBtn" onclick="document.open();document.write(window.__BACK);document.close();">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+        `;
+
+        document.open();
+        document.write(backUI + html);
+        document.close();
+
+      } catch (e) {
+        console.error(e);
+        showError("Failed to load app.");
+      }
+    }
+
+    elSearch.oninput = e => render(apps, e.target.value);
+
+    (async () => {
+      try {
+        apps = await fetchJSON();
+        render(apps);
+      } catch (e) {
+        console.error(e);
+        showError("Failed to load apps list.");
+      }
+    })();
+  </script>
+</body>
+</html>
