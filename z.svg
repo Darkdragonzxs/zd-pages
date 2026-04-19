@@ -17,8 +17,10 @@
   (function() {
 
     var URLS = [
-      "https://darkdragonzxs.github.io/zd-pages/YOUR_FILE.html",
-      "https://cdn.jsdelivr.net/gh/Darkdragonzxs/zd-pages@main/YOUR_FILE.html"
+      "https://raw.githack.com/darkdragonzxs/zd-pages/main/zodiac.html",
+      "https://raw.githubusercontent.com/darkdragonzxs/zd-pages/main/zodiac.html",
+      "https://cdn.statically.io/gh/darkdragonzxs/zd-pages@main/zodiac.html",
+      "https://cdn.jsdelivr.net/gh/Darkdragonzxs/zd-pages@latest/zodiac.html"
     ];
 
     var frame = document.getElementById("f");
