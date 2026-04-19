@@ -23,9 +23,9 @@
   (function() {
 
     var URLS = [
-      "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/YOUR_FILE.html",
-      "https://cdn.jsdelivr.net/gh/YOUR_USER/YOUR_REPO@main/YOUR_FILE.html",
-      "https://raw.githack.com/YOUR_USER/YOUR_REPO/main/YOUR_FILE.html"
+      "https://raw.githubusercontent.com/darkdragonzxs/zd-pages/main/zodiac.html",
+      "https://cdn.jsdelivr.net/gh/darkdragonzxs/zd-pages@main/zodiac.html",
+      "https://raw.githack.com/darkdragonzxs/zd-pages/main/zodiac.html"
     ];
 
     var status = document.getElementById("status");
