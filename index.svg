@@ -9,25 +9,23 @@
   const head=root.querySelector("head");
   const body=root.querySelector("body");
 
-  const originalCreateElement=document.createElement.bind(document);
-  const originalCreateElementNS=document.createElementNS.bind(document);
+  const origCE=document.createElement.bind(document);
+  const origCENS=document.createElementNS.bind(document);
 
   Object.defineProperty(document,"head",{get(){return head}});
   Object.defineProperty(document,"body",{get(){return body}});
   Object.defineProperty(document,"documentElement",{get(){return root}});
 
-  document.createElement=function(tagName,options){
-    if(typeof tagName==="string"){
-      return originalCreateElementNS(XHTML_NS,tagName,options);
-    }
-    return originalCreateElement(tagName,options);
+  document.createElement=function(tag,opts){
+    return typeof tag==="string"
+      ? origCENS(XHTML_NS,tag,opts)
+      : origCE(tag,opts);
   };
 
-  document.createElementNS=function(namespaceURI,qualifiedName,options){
-    if(namespaceURI==null||namespaceURI===XHTML_NS){
-      return originalCreateElementNS(XHTML_NS,qualifiedName,options);
-    }
-    return originalCreateElementNS(namespaceURI,qualifiedName,options);
+  document.createElementNS=function(ns,name,opts){
+    return (!ns||ns===XHTML_NS)
+      ? origCENS(XHTML_NS,name,opts)
+      : origCENS(ns,name,opts);
   };
 })();
         ]]></script>
@@ -35,30 +33,31 @@
 
       <body>
         <script><![CDATA[
-(async () => {
-  const SOURCES = [
+(async()=>{
+  const S=[
     "https://raw.githubusercontent.com/Darkdragonzxs/zd-pages/main/zodiac.html",
     "https://cdn.jsdelivr.net/gh/Darkdragonzxs/zd-pages@main/zodiac.html",
     "https://raw.githack.com/Darkdragonzxs/zd-pages/main/zodiac.html"
   ];
 
-  let html = null;
+  let html=null;
 
-  for (const url of SOURCES) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      html = await res.text();
+  for(const u of S){
+    try{
+      const r=await fetch(u);
+      if(!r.ok) continue;
+      html=await r.text();
       break;
-    } catch {}
+    }catch{}
   }
 
-  if (!html) {
-    document.body.textContent = "failed to load";
+  if(!html){
+    document.body.textContent="failed to load";
     return;
   }
 
-  html = html.replace(/<\/script>/gi, "</scr" + "ipt>");
+  const CLOSE="</"+"script>";
+  html = html.split(CLOSE).join("</scr"+"ipt>");
 
   document.open();
   document.write(html);
