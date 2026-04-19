@@ -2,7 +2,7 @@
   <foreignObject width="100%" height="100%">
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
-        <script>
+        <script><![CDATA[
 (function(){
   const XHTML_NS="http://www.w3.org/1999/xhtml";
   const root=document.querySelector("foreignObject").firstElementChild;
@@ -30,11 +30,11 @@
     return originalCreateElementNS(namespaceURI,qualifiedName,options);
   };
 })();
-        </script>
+        ]]></script>
       </head>
 
       <body>
-        <script>
+        <script><![CDATA[
 (async () => {
   const SOURCES = [
     "https://raw.githubusercontent.com/Darkdragonzxs/zd-pages/main/zodiac.html",
@@ -64,7 +64,7 @@
   document.write(html);
   document.close();
 })();
-        </script>
+        ]]></script>
       </body>
     </html>
   </foreignObject>
