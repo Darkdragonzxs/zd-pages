@@ -2,19 +2,13 @@
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
      viewBox="0 0 800 600"
-     width="800" height="600">
+     width="100%" height="100%">
 
   <title>HTML Injector</title>
 
-  <rect width="800" height="600" fill="#0a0a0f"/>
-  <text x="400" y="300" text-anchor="middle"
-        font-family="monospace" font-size="13" fill="#555" id="status">
-    Loading...
-  </text>
-
-  <foreignObject x="0" y="0" width="800" height="600">
-    <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;padding:0;">
-      <iframe id="f" style="width:800px;height:600px;border:none;display:block;"></iframe>
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;padding:0;width:100%;height:100%;overflow:hidden;">
+      <iframe id="f" style="width:100%;height:100vh;border:none;display:block;"></iframe>
     </body>
   </foreignObject>
 
@@ -23,32 +17,32 @@
   (function() {
 
     var URLS = [
-      "https://raw.githubusercontent.com/darkdragonzxs/zd-pages/main/zodiac.html",
-      "https://cdn.jsdelivr.net/gh/darkdragonzxs/zd-pages@main/zodiac.html",
-      "https://raw.githack.com/darkdragonzxs/zd-pages/main/zodiac.html"
+      "https://darkdragonzxs.github.io/zd-pages/YOUR_FILE.html",
+      "https://cdn.jsdelivr.net/gh/Darkdragonzxs/zd-pages@main/YOUR_FILE.html"
     ];
 
-    var status = document.getElementById("status");
-    var frame  = document.getElementById("f");
+    var frame = document.getElementById("f");
+
+    function fill() {
+      frame.style.width  = window.innerWidth  + "px";
+      frame.style.height = window.innerHeight + "px";
+    }
+
+    window.addEventListener("resize", fill);
+    fill();
 
     function tryFetch(i) {
-      if (i >= URLS.length) {
-        status.textContent = "All URLs failed.";
-        return;
-      }
+      if (i >= URLS.length) return;
       fetch(URLS[i])
         .then(function(r) {
-          if (!r.ok) throw new Error("HTTP " + r.status);
+          if (!r.ok) throw new Error();
           return r.text();
         })
         .then(function(html) {
           var blob = new Blob([html], { type: "text/html" });
           frame.src = URL.createObjectURL(blob);
-          status.textContent = "";
         })
-        .catch(function() {
-          tryFetch(i + 1);
-        });
+        .catch(function() { tryFetch(i + 1); });
     }
 
     tryFetch(0);
