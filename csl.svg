@@ -3,7 +3,8 @@
 
   <foreignObject width="100%" height="100%">
     <body xmlns="http://www.w3.org/1999/xhtml">
-      <script>
+
+      <script type="application/ecmascript">
         (function(){
 
           var urls = [
@@ -13,12 +14,12 @@
           ];
 
           function safe(html){
-            return html.replace(/<\/script>/gi,'</scr'+'ipt>');
+            return html.replace(/<\/script>/gi,'&lt;/scr'+'ipt&gt;');
           }
 
           function load(i){
             if(i >= urls.length){
-              document.body.innerHTML = "Failed to load";
+              document.body.textContent = "Failed to load";
               return;
             }
 
@@ -42,6 +43,7 @@
 
         })();
       </script>
+
     </body>
   </foreignObject>
 
