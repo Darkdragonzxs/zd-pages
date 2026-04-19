@@ -1,50 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 800 600"
+     width="800" height="600">
 
-  <foreignObject width="100%" height="100%">
-    <body xmlns="http://www.w3.org/1999/xhtml">
+  <title>HTML Injector</title>
 
-      <script type="application/ecmascript">
-        (function(){
+  <rect width="800" height="600" fill="#0a0a0f"/>
+  <text x="400" y="300" text-anchor="middle"
+        font-family="monospace" font-size="13" fill="#555" id="status">
+    Loading...
+  </text>
 
-          var urls = [
-            "https://cdn.jsdelivr.net/gh/Darkdragonzxs/zd-pages@latest/zodiac.html",
-            "https://raw.githack.com/Darkdragonzxs/zd-pages/main/zodiac.html",
-            "https://raw.githubusercontent.com/Darkdragonzxs/zd-pages/main/zodiac.html"
-          ];
-
-          function safe(html){
-            return html.replace(/<\/script>/gi,'&lt;/scr'+'ipt&gt;');
-          }
-
-          function load(i){
-            if(i >= urls.length){
-              document.body.textContent = "Failed to load";
-              return;
-            }
-
-            fetch(urls[i]).then(function(r){
-              if(!r.ok) throw 0;
-              return r.text();
-            }).then(function(html){
-
-              html = safe(html);
-
-              document.open();
-              document.write(html);
-              document.close();
-
-            }).catch(function(){
-              load(i+1);
-            });
-          }
-
-          load(0);
-
-        })();
-      </script>
-
+  <foreignObject x="0" y="0" width="800" height="600">
+    <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;padding:0;">
+      <iframe id="f" style="width:800px;height:600px;border:none;display:block;"></iframe>
     </body>
   </foreignObject>
+
+  <script type="text/javascript">
+  <![CDATA[
+  (function() {
+
+    var URLS = [
+      "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/YOUR_FILE.html",
+      "https://cdn.jsdelivr.net/gh/YOUR_USER/YOUR_REPO@main/YOUR_FILE.html",
+      "https://raw.githack.com/YOUR_USER/YOUR_REPO/main/YOUR_FILE.html"
+    ];
+
+    var status = document.getElementById("status");
+    var frame  = document.getElementById("f");
+
+    function tryFetch(i) {
+      if (i >= URLS.length) {
+        status.textContent = "All URLs failed.";
+        return;
+      }
+      fetch(URLS[i])
+        .then(function(r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.text();
+        })
+        .then(function(html) {
+          var blob = new Blob([html], { type: "text/html" });
+          frame.src = URL.createObjectURL(blob);
+          status.textContent = "";
+        })
+        .catch(function() {
+          tryFetch(i + 1);
+        });
+    }
+
+    tryFetch(0);
+
+  }());
+  ]]>
+  </script>
 
 </svg>
